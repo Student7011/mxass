@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sliding Image Slideshow</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    color: #374151;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .slideshow-container {
+    position: relative;
+    width: 90vw;
+    max-width: 900px;
+    height: 500px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #f9fafb;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  }
+
+  .slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    pointer-events: none;
+    border-radius: 12px;
+  }
+
+  .active,
+  .animating-in,
+  .animating-out {
+    pointer-events: auto;
+  }
+
+  /* Base visible slide */
+  .active {
+    opacity: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* Animations */
+
+  /* Incoming slides sliding from right to left */
+  .animating-in.from-right {
+    animation: slideInFromRight 0.5s forwards ease-in-out;
+    opacity: 1;
+    z-index: 2;
+  }
+
+  /* Incoming slides sliding from left to right */
+  .animating-in.from-left {
+    animation: slideInFromLeft 0.5s forwards ease-in-out;
+    opacity: 1;
+    z-index: 2;
+  }
+
+  /* Outgoing slides sliding out to left */
+  .animating-out.to-left {
+    animation: slideOutToLeft 0.5s forwards ease-in-out;
+    opacity: 1;
+    z-index: 1;
+  }
+
+  /* Outgoing slides sliding out to right */
+  .animating-out.to-right {
+    animation: slideOutToRight 0.5s forwards ease-in-out;
+    opacity: 1;
+    z-index: 1;
+  }
+
+  @keyframes slideInFromRight {
+    0% {
+      transform: translateX(100%);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-100%);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutToLeft {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideOutToRight {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  /* Navigation Arrows */
+  .prev,
+  .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-weight: bold;
+    font-size: 2.5rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    z-index: 5;
+  }
+
+  .prev:hover,
+  .next:hover {
+    background: rgba(0,0,0,0.6);
+  }
+
+  .prev {
+    left: 1rem;
+  }
+
+  .next {
+    right: 1rem;
+  }
+
+  /* Dots */
+  .dots-container {
+    position: absolute;
+    bottom: 1rem;
+    width: 100%;
+    text-align: center;
+    z-index: 5;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin: 0 6px;
+    background-color: #cbd5e1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .dot:hover {
+    background-color: #60a5fa;
+  }
+
+  .dot.active {
+    background-color: #2563eb;
+  }
+</style>
+</head>
+<body>
+  <div class="slideshow-container" aria-label="Image slideshow" role="region">
+    <div class="slide active" aria-hidden="false" role="group" aria-roledescription="slide" aria-label="Slide 1">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80" alt="Mountain" draggable="false" />
+    </div>
+    <div class="slide" aria-hidden="true" role="group" aria-roledescription="slide" aria-label="Slide 2">
+      <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=80" alt="Beach" draggable="false" />
+    </div>
+    <div class="slide" aria-hidden="true" role="group" aria-roledescription="slide" aria-label="Slide 3">
+      <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80" alt="Forest" draggable="false" />
+    </div>
+
+    <button class="prev" aria-label="Previous Slide">&#10094;</button>
+    <button class="next" aria-label="Next Slide">&#10095;</button>
+
+    <div class="dots-container" role="tablist">
+      <span class="dot active" role="tab" tabindex="0" aria-selected="true" aria-controls="slide1"></span>
+      <span class="dot" role="tab" tabindex="-1" aria-selected="false" aria-controls="slide2"></span>
+      <span class="dot" role="tab" tabindex="-1" aria-selected="false" aria-controls="slide3"></span>
+    </div>
+  </div>
+
+<script>
+  (() => {
+    let slideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    const totalSlides = slides.length;
+    let autoSlideTimer;
+    let isAnimating = false;
+
+    const slideshowContainer = document.querySelector('.slideshow-container');
+
+    function goToSlide(newIndex, direction) {
+      if (isAnimating || newIndex === slideIndex) return;
+      isAnimating = true;
+      
+      const outgoingSlide = slides[slideIndex];
+      const incomingSlide = slides[newIndex];
+
+      // Set ARIA attributes appropriately
+      outgoingSlide.setAttribute('aria-hidden', 'true');
+      incomingSlide.setAttribute('aria-hidden', 'false');
+
+      // Reset classes
+      outgoingSlide.classList.remove('active', 'animating-in', 'animating-out', 'from-left', 'from-right', 'to-left', 'to-right');
+      incomingSlide.classList.remove('active', 'animating-in', 'animating-out', 'from-left', 'from-right', 'to-left', 'to-right');
+
+      // Prepare incoming slide initial position and animation class
+      incomingSlide.classList.add('animating-in');
+      outgoingSlide.classList.add('animating-out');
+
+      if (direction === 'next') {
+        incomingSlide.classList.add('from-right');
+        outgoingSlide.classList.add('to-left');
+      } else {
+        incomingSlide.classList.add('from-left');
+        outgoingSlide.classList.add('to-right');
+      }
+
+      incomingSlide.style.zIndex = 2;
+      outgoingSlide.style.zIndex = 1;
+
+      // Update dots active classes
+      dots[slideIndex].classList.remove('active');
+      dots[newIndex].classList.add('active');
+
+      // After animation completes
+      setTimeout(() => {
+        outgoingSlide.classList.remove('active', 'animating-out', 'to-left', 'to-right');
+        incomingSlide.classList.remove('animating-in', 'from-left', 'from-right');
+        incomingSlide.classList.add('active');
+
+        slideIndex = newIndex;
+        isAnimating = false;
+      }, 500); // Match CSS animation duration
+
+      resetAutoSlide();
+    }
+
+    function nextSlide() {
+      let newIndex = (slideIndex + 1) % totalSlides;
+      goToSlide(newIndex, 'next');
+    }
+
+    function prevSlide() {
+      let newIndex = (slideIndex - 1 + totalSlides) % totalSlides;
+      goToSlide(newIndex, 'prev');
+    }
+
+    // Navigation button handlers
+    document.querySelector('.next').addEventListener('click', () => {
+      nextSlide();
+    });
+
+    document.querySelector('.prev').addEventListener('click', () => {
+      prevSlide();
+    });
+
+    // Dot navigation handlers
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        const direction = index > slideIndex ? 'next' : 'prev';
+        goToSlide(index, direction);
+      });
+      dot.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const direction = index > slideIndex ? 'next' : 'prev';
+          goToSlide(index, direction);
+        }
+      });
+    });
+
+    // Touch swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const swipeThreshold = 50;
+
+    slideshowContainer.addEventListener('touchstart', (event) => {
+      touchStartX = event.changedTouches[0].screenX;
+    }, false);
+
+    slideshowContainer.addEventListener('touchend', (event) => {
+      touchEndX = event.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+      if (isAnimating) return;
+      if (touchEndX < touchStartX && (touchStartX - touchEndX) > swipeThreshold) {
+        nextSlide();
+      }
+      if (touchEndX > touchStartX && (touchEndX - touchStartX) > swipeThreshold) {
+        prevSlide();
+      }
+    }
+
+    // Disable image drag
+    slides.forEach(slide => {
+      const imgs = slide.querySelectorAll('img');
+      imgs.forEach(img => img.setAttribute('draggable', 'false'));
+    });
+
+    // Auto Slide
+    function resetAutoSlide() {
+      clearTimeout(autoSlideTimer);
+      autoSlideTimer = setTimeout(() => {
+        nextSlide();
+      }, 4000);
+    }
+
+    resetAutoSlide();
+
+  })();
+</script>
+</body>
+</html>
+
